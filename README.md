@@ -6,7 +6,7 @@ Reinforcement learning engine for Six Winters strategy tuning.
 
 * ResourceDie
 * Character
-* MissionDeck
+* EncounterDeck
 * ResourcePool
 * Location
 * Asset
