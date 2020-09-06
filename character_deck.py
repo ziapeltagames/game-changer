@@ -7,13 +7,14 @@ Created on Sun Aug 30 09:08:28 2020
 
 from deck import Deck
 
-class AssetDeck(Deck):
+class CharacterDeck(Deck):
     
     def __init__(self):
-        self.cards = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4]
+        self.cards = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+                      1, 1, 1, 1, 2, 2, 2, 3, 3, 4]
         super().__init__(self.cards)
         
 if __name__ == "__main__":
     
-    ad = AssetDeck()  
+    ad = CharacterDeck()  
     print(ad.draw())
