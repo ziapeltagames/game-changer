@@ -35,11 +35,17 @@ class ResourceDie:
         return f"{self.resource_type} {self.value}"
         
     def __eq__(self, other):
-        return (self.value == other.value and
-                self.resource_type == other.resource_type)
+        if self and other:
+            return (self.value == other.value and
+                    self.resource_type == other.resource_type)
+        else:
+            return False
 
     def __ne__(self, other):
-        return (self.value != other.value)
+        if self and other:
+            return (self.value != other.value)
+        else:
+            return False
 
     def __lt__(self, other):
         return (self.value < other.value)
@@ -55,16 +61,23 @@ class ResourceDie:
     
 class ResourcePool:
     
-    def __init__(self, resource_type, pool_size):
+    def __init__(self, resource_type, pool_size, start_empty = False):
         self.resource_type = resource_type
         self.pool_size = pool_size
         self.dice = []
+        
+        if start_empty:
+            return
+        
         for i in range(pool_size):
             bisect.insort_left(self.dice, ResourceDie(resource_type))
             
     def refill(self):
         while len(self.dice) < self.pool_size:
             bisect.insort_left(self.dice, ResourceDie(self.resource_type))
+            
+    def capacity(self):
+        return self.pool_size - len(self.dice)            
         
     # What is the highest valued die for the given skill?
     def highest_die(self, skill):
@@ -79,6 +92,9 @@ class ResourcePool:
             return self.dice[0]
         else:
             return None
+        
+    def add(self, die):            
+        bisect.insort_left(self.dice, die)
         
     def remove(self, die):
         self.dice.remove(die)
@@ -95,4 +111,4 @@ if __name__ == "__main__":
     skill = random.randint(1, 6)
     highest_die = rp.highest_die(skill)
     print()
-    print('Skill', skill, ': ', highest_die)
+    print('Skill', skill, ': Highest Die', highest_die)

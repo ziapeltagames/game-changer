@@ -7,7 +7,7 @@ Created on Sun Sep  6 10:52:26 2020
 
 import random
 
-from character import Character
+from character import Skill, Character
 from location import Location
 from resource import Resource, ResourcePool
 
@@ -16,12 +16,14 @@ from encounter import EncounterDeck
 from achievement import AchievementDeck
 
 MAX_TIMERS = 5
-POOL_SIZE = 2
+RESOURCE_POOL_SIZE = 3
+LOCATION_POOL_SIZE = 2
 
-locations = [Location('Dreadmire', Resource.ORE),
-             Location('Monkeytown', Resource.LUXURY),
-             Location('Flavortown', Resource.FOOD),
-             Location('Taos', Resource.MANA)]
+# Initialize character locations
+locations = [Location('Dreadmire', Resource.ORE, LOCATION_POOL_SIZE),
+             Location('Monkeytown', Resource.LUXURY, LOCATION_POOL_SIZE),
+             Location('Flavortown', Resource.FOOD, LOCATION_POOL_SIZE),
+             Location('Taos', Resource.MANA, LOCATION_POOL_SIZE)]
 
 characters = [Character('Keel'), Character('Thea')]
 
@@ -29,64 +31,60 @@ character_deck = CharacterDeck()
 encounter_deck = EncounterDeck(6, 10)
 achievement_deck = AchievementDeck()
 
+# Initialize resource pools
 resource_pools = []
 for resource in Resource:
-    resource_pools.append(ResourcePool(resource, POOL_SIZE))
+    resource_pools.append(ResourcePool(resource, RESOURCE_POOL_SIZE))
 
+# Initialize timers seen so far
 total_timers = 0
 
+# Initialize character locations
 for character in characters:
     character.location = locations[0]
-    character.location.characters.append(character)
+    locations[0].characters.append(character)
     
-def move_character(character):
+# Randomly shuffles a character from one location to another
+def randomly_move_characters(character):
     character.location.characters.remove(character)
     new_location = random.randint(0, len(locations) - 1)
     character.location = locations[new_location]
     character.location.characters.append(character)
     
-# Determine the highest available die at or below value in resource pool
-def highest_pool_die(pool, skill_total):    
-    highest_die = None
- 
-    for die in pool.dice:        
-        if die.value > skill_total:
-            continue
-        if highest_die == None or highest_die.value < die.value:
-            highest_die = die
-            
-    return highest_die
-    
-# Move a die from a pool to a location
-def invest(die, pool, location):
-    
-    pool.remove(die)
-    location.resources.append(die)
-    
 # A simple heuristic for investing resources from the pool to the location
-def invest_resources(location):
+def greedy_invest_resources(location):
 
     # Iterate over each location that has characters
-    if len(location.characters) > 0:
-        skill_total = 0
+    if len(location.characters) <=0:
+        return
+    
+    skill_total = 0
         
-        for character in location.characters:
-            skill_total += character.command
+    for character in location.characters:
+        skill_total += character.skills[Skill.COMMAND]
+    
+    # What's the largest die that can be taken
+    pool = resource_pools[location.rpool.resource_type.value]
+    die = pool.highest_die(skill_total)
+    
+    # Can't get anything
+    if die == None:
+        return
+    
+    # Does the location have space available, if so, fill it
+    if location.capacity() > 0:
+        location.add_die(die)
+        pool.remove(die)
+        return
         
-        # What's the largest die that can be taken
-        pool = resource_pools[location.resource_type.value]
-        die = highest_pool_die(pool, skill_total)
-        
-        # Can't get anything
-        if die == None:
-            return
-        
-        # Does the pool have space available, if so, fill it
-        if len(location.resources) < POOL_SIZE:
-            invest(die, pool, location)
-            return
-        
-        # TODO - Invest logic
+    # Otherwise, attempt to swap it out
+    swapped_die = location.trade_die(die)        
+    if swapped_die == None:
+        return
+    
+    pool.remove(die)
+    pool.add(swapped_die)
+
         
 # Iterate for some number of timers
 while total_timers < MAX_TIMERS:
@@ -97,12 +95,17 @@ while total_timers < MAX_TIMERS:
     
     # Move characters, randomly for now
     for character in characters:
-        move_character(character)
+        randomly_move_characters(character)
     
-    # Invest resources
+    # Invest resources using a greedy heuristic
     for location in locations:
-        
-        # Move resources from the pool to a location
-        invest_resources(location)
+        greedy_invest_resources(location)
+    
+    # Check to see if any achievements have been completed
+    # for achievement in achievements:
+        # achievement.resource_achievements(locations)
         
     total_timers+= 1
+    
+for location in locations:
+    print(location)
