@@ -63,8 +63,10 @@ def invest(die, pool, location):
     pool.remove(die)
     location.resources.append(die)
     
+# A simple heuristic for investing resources from the pool to the location
 def invest_resources(location):
 
+    # Iterate over each location that has characters
     if len(location.characters) > 0:
         skill_total = 0
         
@@ -86,19 +88,21 @@ def invest_resources(location):
         
         # TODO - Invest logic
         
-            
+# Iterate for some number of timers
 while total_timers < MAX_TIMERS:
     
     # Refill the resource pools
     for resource_pool in resource_pools:
         resource_pool.refill()
     
-    # Move characters
+    # Move characters, randomly for now
     for character in characters:
         move_character(character)
     
     # Invest resources
     for location in locations:
+        
+        # Move resources from the pool to a location
         invest_resources(location)
         
     total_timers+= 1
