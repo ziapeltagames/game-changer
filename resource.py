@@ -72,6 +72,12 @@ class ResourcePool:
         for i in range(pool_size):
             bisect.insort_left(self.dice, ResourceDie(resource_type))
             
+    def total(self):
+        total = 0
+        for die in self.dice:
+            total = total + die.value
+        return total
+    
     def refill(self):
         while len(self.dice) < self.pool_size:
             bisect.insort_left(self.dice, ResourceDie(self.resource_type))
@@ -79,9 +85,9 @@ class ResourcePool:
     def capacity(self):
         return self.pool_size - len(self.dice)            
         
-    # What is the highest valued die for the given skill?
-    def highest_die(self, skill):
-        i = bisect.bisect(self.dice, ResourceDie(self.resource_type, skill))
+    # What is the highest valued die less than or equal to the given value?
+    def highest_die_under(self, lvalue):
+        i = bisect.bisect(self.dice, ResourceDie(self.resource_type, lvalue))
         if i > 0:
             return self.dice[i - 1]
         else:
@@ -109,6 +115,6 @@ if __name__ == "__main__":
         print(nd)
         
     skill = random.randint(1, 6)
-    highest_die = rp.highest_die(skill)
+    highest_die = rp.highest_die_under(skill)
     print()
     print('Skill', skill, ': Highest Die', highest_die)

@@ -13,15 +13,15 @@ from resource import Resource, ResourcePool
 
 from character_deck import CharacterDeck
 from encounter import EncounterDeck
-from achievement import AchievementDeck
+from achievement import AchievementDeck, AchievementType, TotalResourceAchievement
 
 MAX_TIMERS = 5
 RESOURCE_POOL_SIZE = 3
 LOCATION_POOL_SIZE = 2
 
-# Initialize character locations
+# Initialize characters and locations
 locations = [Location('Dreadmire', Resource.ORE, LOCATION_POOL_SIZE),
-             Location('Monkeytown', Resource.LUXURY, LOCATION_POOL_SIZE),
+             Location('Monkeytown', Resource.TIMBER, LOCATION_POOL_SIZE),
              Location('Flavortown', Resource.FOOD, LOCATION_POOL_SIZE),
              Location('Taos', Resource.MANA, LOCATION_POOL_SIZE)]
 
@@ -39,10 +39,17 @@ for resource in Resource:
 # Initialize timers seen so far
 total_timers = 0
 
-# Initialize character locations
+# Initialize where characters are located
 for character in characters:
     character.location = locations[0]
     locations[0].characters.append(character)
+    
+# Create initial achievements
+ach1 = TotalResourceAchievement('Gather Wood', AchievementType.RESOURCE, 
+                                Resource.TIMBER, 5)
+ach2 = TotalResourceAchievement('Gather Mana', AchievementType.RESOURCE, 
+                                Resource.MANA, 7)
+achievements = [ach1, ach2]
     
 # Randomly shuffles a character from one location to another
 def randomly_move_characters(character):
@@ -65,7 +72,7 @@ def greedy_invest_resources(location):
     
     # What's the largest die that can be taken
     pool = resource_pools[location.rpool.resource_type.value]
-    die = pool.highest_die(skill_total)
+    die = pool.highest_die_under(skill_total)
     
     # Can't get anything
     if die == None:
@@ -102,10 +109,12 @@ while total_timers < MAX_TIMERS:
         greedy_invest_resources(location)
     
     # Check to see if any achievements have been completed
-    # for achievement in achievements:
-        # achievement.resource_achievements(locations)
+    for achievement in achievements:
+        if achievement.completed(locations):
+            print('Completed!', achievement)
         
     total_timers+= 1
-    
+
+print('End Game State')
 for location in locations:
     print(location)
