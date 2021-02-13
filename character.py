@@ -34,6 +34,12 @@ class Character:
         self.skills[Skill.SURVIVAL] = survival
         self.location = None
     
+    def __str__(self):
+        loc_string = f'{self.name} '
+        for r in self.skills:
+            loc_string += str(r) + ':' + str(r.value) + ' '
+        return loc_string
+    
 if __name__ == "__main__":
     
     ch = Character('Oniri')

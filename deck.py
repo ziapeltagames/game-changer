@@ -15,7 +15,13 @@ class Deck:
 
     # Pull a card from the deck
     def draw(self):
-        return self.cards.pop(0)
+        if self.cards:
+            return self.cards.pop(0)
+        else:
+            return None
     
-    def reshuffle(self):
+    def insert(self, card):
+        self.cards.append(card)
+    
+    def shuffle(self):
         shuffle(self.cards)

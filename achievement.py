@@ -12,18 +12,12 @@ Created on Sun Aug 30 09:08:18 2020
 import random
 
 from enum import Enum
-from deck import Deck
 from resource import Resource, ResourceDie
 from location import Location
 
 class AchievementType(Enum):
     RESOURCE = 0
     OBSTACLE = 1
-    
-class AchievementDeck(Deck):    
-    
-    def __init__(self):
-        self.achievements = []
 
 class Achievement():
 
