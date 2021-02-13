@@ -20,10 +20,13 @@ class Location:
         self.characters = []
         
     def __str__(self):
-        loc_string = f'{self.name} '
+        loc_string = f'{self.name} {self.rpool.pool_size} '
         for r in self.rpool:
             loc_string += str(r) + ' '
         return loc_string
+    
+    def __repr__(self):
+        return self.__str__()    
         
     def resource_total(self):
         total = 0

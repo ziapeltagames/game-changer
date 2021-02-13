@@ -33,6 +33,9 @@ class ResourceDie:
         
     def __str__(self):
         return f"{self.resource_type} {self.value}"
+    
+    def __repr__(self):
+        return self.__str__()    
         
     def __eq__(self, other):
         if self and other:
@@ -58,6 +61,39 @@ class ResourceDie:
 
     def __ge__(self, other):
         return (self.value >= other.value)
+    
+# A resource die aware of the location it comes from - useful for sorting
+# algorithms where combinations of dice summing to a total are found, and
+# removed from associated location or resource pools
+class LocationResourceDie():
+    
+    def __init__(self, die, location):
+        self.die = die
+        self.location = location
+        
+    def __str__(self):
+        return f"{self.die.resource_type} {self.die.value} {self.location.name}"        
+     
+    def __repr__(self):
+        return self.__str__()
+    
+    def __eq__(self, other):
+        return self.die.__eq__(other)
+
+    def __ne__(self, other):
+        return self.die.__ne__(other)
+
+    def __lt__(self, other):
+        return self.die.__lt__(other)
+
+    def __le__(self, other):
+        return self.die.__le__(other)
+
+    def __gt__(self, other):
+        return self.die.__gt__(other)
+
+    def __ge__(self, other):
+        return self.die.__ge__(other)       
     
 class ResourcePool:
     

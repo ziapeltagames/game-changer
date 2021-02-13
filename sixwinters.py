@@ -15,7 +15,7 @@ from deck import Deck
 from character import Skill, Character
 from location import Location
 from resource import Resource, ResourcePool
-from achievement import AchievementType, TotalResourceAchievement
+from achievement import AchievementType, SumResourceAchievement
 
 # A simple upper bound on the length of the game
 MAX_TIMERS = 5
@@ -123,8 +123,8 @@ class SixWinters(gym.Env):
             resource_pool.refill()
             
         # Move characters based on actions        
-        self._move_character(self.characters[0], self.locations[0])
-        self._move_character(self.characters[1], self.locations[1])
+        self._move_character(self.characters[0], action[0])
+        self._move_character(self.characters[1], action[1])
         
         # Invest resources based on greedy heuristic
         for location in self.locations:
@@ -194,7 +194,7 @@ class SixWinters(gym.Env):
         # Create initial four achievements, which map to the four location types
         for next_resource in [Resource.TIMBER, Resource.MANA, Resource.ORE, Resource.FOOD]:
             
-            achievement = TotalResourceAchievement('Gather', AchievementType.RESOURCE, next_resource, 6)
+            achievement = SumResourceAchievement('Gather', AchievementType.RESOURCE, next_resource, 6)
             self.achievement_deck.insert(achievement)
 
         # Draw two starting achievements           
