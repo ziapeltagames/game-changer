@@ -1,8 +1,12 @@
 # game-changer
 
-Reinforcement learning engine for Six Winters strategy tuning. Eventually, the goal is to use reinforcment learning to search through the design space of the game, ensuring there are a number of viable paths to victory.
+Reinforcement learning engine for _Six Winters_ strategy tuning. Eventually, the goal is to use reinforcment learning to search through the design space of the game, gaining insight into questions like:
 
-This repository uses the Open AI Gym interface to track the Six Winters game state. The two main elements of this environment are the action_space (what the AI can choose to do) and observation_space (what the AI can see).
+* Are there different viable paths to victory?
+* How likely is success for each path?
+* How complex is the decision space?
+
+This repository uses the Open AI Gym interface to track the _Six Winters_ game state. The two main elements of this environment are the action_space (what the AI can choose to do) and observation_space (what the AI can see).
 
 # Running the Game
 

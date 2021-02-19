@@ -81,9 +81,9 @@ class SixWinters(gym.Env):
     def __init__(self):
         
         # Each character may move to a different location
-        self.action_space = spaces.Tuple((
-            spaces.Discrete(4),
-            spaces.Discrete(4)))
+        # The first four options move character A, and the second
+        # four move character B
+        self.action_space = spaces.Discrete(8)
         
         # The board state is represented as 60 discrete values
         obs = []
@@ -132,15 +132,19 @@ class SixWinters(gym.Env):
     # action the AI takes.
     def step(self, action):
         
+        self.score = 0        
+        
         # Make sure this is a valid action
         assert self.action_space.contains(action)
         
         for resource_pool in self.resource_pools:
             resource_pool.refill()
             
-        # Move characters based on actions        
-        self._move_character(self.characters[0], self.locations[action[0]])
-        self._move_character(self.characters[1], self.locations[action[1]])
+        # Move characters based on actions     
+        if action < 4:
+            self._move_character(self.characters[0], self.locations[action])
+        else:
+            self._move_character(self.characters[1], self.locations[action - 4])
         
         # Invest resources based on greedy heuristic
         for location in self.locations:
@@ -211,7 +215,8 @@ class SixWinters(gym.Env):
         
         self.done = False
         self.timers = 0
-        self.score = 0
+        
+        return self._get_obs()
         
 if __name__ == "__main__":
     
@@ -220,7 +225,7 @@ if __name__ == "__main__":
     done = False
     r = 0
     while not done:
-        action = (random.randint(0,3), random.randint(0,3))
+        action = (random.randint(0,7))
         obs, r, done, info = env.step(action)
     
     print('Done playing, score', r)
