@@ -33,11 +33,16 @@ def randomly_move_characters(character, locations):
     character.location = locations[new_location]
     character.location.characters.append(character)
     
+# Remove dice from the listed locations
+def pay_for_achievement(loc_dice):
+    for ld in loc_dice:
+        ld.location.rpool.remove(ld.die)
+    
 # A simple heuristic for investing resources from the pool to the location
 def greedy_invest_resources(location, resource_pools):
 
     # Iterate over each location that has characters
-    if len(location.characters) <=0:
+    if len(location.characters) <= 0:
         return
     
     skill_total = 0
@@ -80,12 +85,14 @@ class SixWinters(gym.Env):
             spaces.Discrete(4),
             spaces.Discrete(4)))
         
-        # The four locations each with 5 resource types
-        # and two achievements with 5 resource types, so it's
-        # [Location A, Location B, Location C, Location D, Achievement A, Achievement B]
-        self.observation_space = spaces.MultiDiscrete([5, 5, 5, 5, 5, 5])
-        
+        # The board state is represented as 60 discrete values
+        obs = []
+        for i in range(60):
+            obs.append(6)
+            
+        self.observation_space = spaces.MultiDiscrete(obs)        
         self.seed()
+        self.reset()
         
     # Bookkeeping to move a character from one location to another
     def _move_character(self, character, location):
@@ -99,14 +106,23 @@ class SixWinters(gym.Env):
         
     # Returns game state, called at the end of each step
     def _get_obs(self):
-        achievement_ob_space = []
+        
+        obs = []
+        
+        for loc in self.locations:
+            obs.extend(loc.encode())
+            
+        for rp in self.resource_pools:
+            obs.extend(rp.encode())
+            
         for achievement in self.current_achievements:
-            achievement_ob_space.append(achievement.resource_type.value)
-        return self.loc_ob_space + achievement_ob_space
-    
-    def _show_locs(self, locations):
-        for loc in locations:
-            print(loc)
+            obs.extend(achievement.encode())
+        
+        # 0 pad out missing achievements
+        for i in range(2 - len(self.current_achievements)):
+            obs.extend([0, 0, 0])
+        
+        return obs
         
     def seed(self, seed = None):
         self.np_random, seed = seeding.np_random(seed)
@@ -123,8 +139,8 @@ class SixWinters(gym.Env):
             resource_pool.refill()
             
         # Move characters based on actions        
-        self._move_character(self.characters[0], action[0])
-        self._move_character(self.characters[1], action[1])
+        self._move_character(self.characters[0], self.locations[action[0]])
+        self._move_character(self.characters[1], self.locations[action[1]])
         
         # Invest resources based on greedy heuristic
         for location in self.locations:
@@ -132,12 +148,10 @@ class SixWinters(gym.Env):
             
         # Check to see if achievements have been completed
         # Create a duplicate list so the original can be modified during iteration
-        for achievement in list(self.current_achievements):
-            if achievement.completed(self.locations):
-
-                # TODO: Actually need to remove the resources after completion
-                
-                print('Completed', achievement)
+        for achievement in list(self.current_achievements):            
+            subset = achievement.completed(self.locations)            
+            if subset:
+                pay_for_achievement(subset[0])
                 
                 self.current_achievements.remove(achievement)
                 self.score = self.score + 1
@@ -150,8 +164,6 @@ class SixWinters(gym.Env):
                 # All of the achievments are completed!
                 if not self.current_achievements:
                     self.done = True
-                    
-        self._show_locs(self.locations)
         
         # For now, the game lasts a fixed number of rounds
         self.timers = self.timers + 1
@@ -162,7 +174,6 @@ class SixWinters(gym.Env):
         return self._get_obs(), self.score, self.done, {}
         
         
-
     # Reset the state of the game world
     def reset(self):
 
@@ -171,10 +182,6 @@ class SixWinters(gym.Env):
                           Location('Timberville', Resource.TIMBER, LOCATION_POOL_SIZE),
                           Location('Flavortown', Resource.FOOD, LOCATION_POOL_SIZE),
                           Location('Manasberg', Resource.MANA, LOCATION_POOL_SIZE)]
-        
-        self.loc_ob_space = []
-        for location in self.locations:
-            self.loc_ob_space.append(location.rpool.resource_type.value)
         
         self.characters = [Character('Keel'), Character('Thea')]
         
@@ -194,7 +201,7 @@ class SixWinters(gym.Env):
         # Create initial four achievements, which map to the four location types
         for next_resource in [Resource.TIMBER, Resource.MANA, Resource.ORE, Resource.FOOD]:
             
-            achievement = SumResourceAchievement('Gather', AchievementType.RESOURCE, next_resource, 6)
+            achievement = SumResourceAchievement('Gather', AchievementType.SUM, next_resource, 7)
             self.achievement_deck.insert(achievement)
 
         # Draw two starting achievements           
@@ -210,7 +217,6 @@ if __name__ == "__main__":
     
     # A random strategy to exercise the gym.Env
     env = SixWinters()
-    obs = env.reset()
     done = False
     r = 0
     while not done:
@@ -218,4 +224,3 @@ if __name__ == "__main__":
         obs, r, done, info = env.step(action)
     
     print('Done playing, score', r)
-    print(obs)

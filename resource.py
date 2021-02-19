@@ -107,6 +107,9 @@ class ResourcePool:
         
         for i in range(pool_size):
             bisect.insort_left(self.dice, ResourceDie(resource_type))
+        
+    def __iter__(self):
+        return self.dice.__iter__()
             
     def total(self):
         total = 0
@@ -141,8 +144,20 @@ class ResourcePool:
     def remove(self, die):
         self.dice.remove(die)
         
-    def __iter__(self):
-        return self.dice.__iter__()
+    # Returns an encoding for the resource pool that can be returned
+    # for Open AI Gym. The encoding is an integer for the resource
+    # type (0-4), along with an integer for each die on the location (1-6)
+    def encode(self):
+        obs = [self.resource_type.value]
+        
+        for nd in self.dice:
+            obs.append(nd.value)
+                    
+        for i in range(5 - len(self.dice)):
+            obs.append(0)
+        
+        return obs        
+
     
 if __name__ == "__main__":
     

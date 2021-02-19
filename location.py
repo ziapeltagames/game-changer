@@ -27,20 +27,26 @@ class Location:
     
     def __repr__(self):
         return self.__str__()    
-        
-    def resource_total(self):
-        total = 0
-        for resource in self.rpool:
-            total += resource.value
-        return total
-    
-    def capacity(self):
-        return self.rpool.capacity()
     
     def add_die(self, die):
         if self.rpool.capacity() <= 0:
             raise Exception('Adding die to location with max resource dice.')
         self.rpool.add(die)
+        
+    def capacity(self):
+        return self.rpool.capacity()        
+    
+    # Returns an encoding for a location that can be returned for Open AI Gym
+    # The encoding is an integer for the resource type (0-4), along with an
+    # integer for each die on the location (1-6)
+    def encode(self):
+        return self.rpool.encode()    
+        
+    def resource_total(self):
+        total = 0
+        for resource in self.rpool:
+            total += resource.value
+        return total        
         
     # If possible, trade out the lowest valued die less than the proposed die.
     def trade_die(self, die):
@@ -54,12 +60,13 @@ class Location:
             
 if __name__ == "__main__":
     
-    size = random.randint(1, 6)
+    size = random.randint(1, 5)
     loc = Location('Dreadmire', Resource.FOOD, size)
     for i in range(size):
         loc.add_die(ResourceDie(Resource.FOOD))
     print(loc)
-
+    print(loc.encode())
+    
     die = ResourceDie(Resource.FOOD)
     td = loc.trade_die(die)
     print()
