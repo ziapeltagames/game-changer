@@ -4,6 +4,12 @@ Reinforcement learning engine for Six Winters strategy tuning. Eventually, the g
 
 This repository uses the Open AI Gym interface to track the Six Winters game state. The two main elements of this environment are the action_space (what the AI can choose to do) and observation_space (what the AI can see).
 
+# Running the Game
+
+```
+python qlearning.py
+```
+
 # Simplified Rules
 
 The first version of the game is very simple. Two characters move between four locations. Each location has a resource type and may hold a number of dice of this type. There are five resource pools, each containing a number of dice, of the following types: mana, timber, ore, luxury, and food.
