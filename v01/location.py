@@ -20,9 +20,9 @@ class Location:
         self.characters = []
         
     def __str__(self):
-        loc_string = f'{self.name} {self.rpool.pool_size} '
-        for r in self.rpool:
-            loc_string += str(r) + ' '
+        loc_string = f'{self.name} ' + str(self.rpool)
+        for c in self.characters:
+            loc_string += str(c)
         return loc_string
     
     def __repr__(self):
@@ -40,7 +40,13 @@ class Location:
     # The encoding is an integer for the resource type (0-4), along with an
     # integer for each die on the location (1-6)
     def encode(self):
-        return self.rpool.encode()    
+        obs = self.rpool.encode()
+        cs = len(self.characters)
+        for i in range(cs):
+            obs.append(1)
+        for i in range(2 - cs):
+            obs.append(0)
+        return obs    
         
     def resource_total(self):
         total = 0

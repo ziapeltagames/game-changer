@@ -25,7 +25,6 @@ def subset_sum(loc_dice, target, partial = [], partial_sum = 0):
         yield from subset_sum(remaining, target, partial + [loc_die], partial_sum + loc_die.die.value)
     
 class AchievementType(Enum):
-    
     SUM = 1
     SET = 2
     DISTINCT = 3    

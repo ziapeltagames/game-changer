@@ -18,13 +18,13 @@ from resource import Resource, ResourcePool
 from achievement import AchievementType, SumResourceAchievement
 
 # A simple upper bound on the length of the game
-MAX_TIMERS = 5
+MAX_TIMERS = 10
 
 # The number of dice in each resource pool at the start of each turn
 RESOURCE_POOL_SIZE = 3
 
 # The max number of resource dice which may be placed on each location
-LOCATION_POOL_SIZE = 2
+LOCATION_POOL_SIZE = 3
     
 # Randomly shuffles a character from one location to another
 def randomly_move_characters(character, locations):
@@ -85,14 +85,13 @@ class SixWinters(gym.Env):
         # four move character B
         self.action_space = spaces.Discrete(8)
         
-        # The board state is represented as 60 discrete values
+        # The board state is represented as a list of discrete values
         obs = []
-        for i in range(60):
+        for i in range(68):
             obs.append(6)
             
         self.observation_space = spaces.MultiDiscrete(obs)        
         self.seed()
-        self.reset()
         
     # Bookkeeping to move a character from one location to another
     def _move_character(self, character, location):
@@ -109,18 +108,18 @@ class SixWinters(gym.Env):
         
         obs = []
         
-        for loc in self.locations:
-            obs.extend(loc.encode())
-            
         for rp in self.resource_pools:
-            obs.extend(rp.encode())
+            obs += rp.encode()        
             
         for achievement in self.current_achievements:
-            obs.extend(achievement.encode())
+            obs += achievement.encode()
         
         # 0 pad out missing achievements
-        for i in range(2 - len(self.current_achievements)):
-            obs.extend([0, 0, 0])
+        for i in range((2 - len(self.current_achievements)) * 3):
+            obs += [0]            
+        
+        for loc in self.locations:
+            obs += loc.encode()
         
         return obs
         
@@ -136,14 +135,11 @@ class SixWinters(gym.Env):
         
         # Make sure this is a valid action
         assert self.action_space.contains(action)
-        
-        for resource_pool in self.resource_pools:
-            resource_pool.refill()
             
         # Move characters based on actions     
         if action < 4:
             self._move_character(self.characters[0], self.locations[action])
-        else:
+        else:          
             self._move_character(self.characters[1], self.locations[action - 4])
         
         # Invest resources based on greedy heuristic
@@ -175,8 +171,56 @@ class SixWinters(gym.Env):
         if self.timers >= MAX_TIMERS:
             self.done = True
             
+        # This isn't the usual sequencing for refilling pools - but
+        # in this modified game, they're filled after every move
+        for resource_pool in self.resource_pools:
+            resource_pool.refill()            
+            
         return self._get_obs(), self.score, self.done, {}
         
+    # Although it's a roundabout way to get object state, render decodes
+    # the obs string. This is a sanity check that the ML Agent can see
+    # the game state it needs to. It's also effectively a confirmation
+    # that the encoding is correct.
+    def render(self):
+        
+        obs = self._get_obs()
+        
+        try:
+            
+            INDEX = 0
+            
+            print('===============')
+            print('TIMERS: ', self.timers)
+            print('')
+            
+            print('--- Pools ---')
+            for pool in self.resource_pools:
+                print(obs[INDEX:INDEX+6])
+                print(pool)
+                INDEX += 6
+            print('')
+
+            print('--- Achievements ---')
+            for ach in self.current_achievements:
+                print(obs[INDEX:INDEX+3])
+                print(ach)
+                INDEX += 3
+            print('')
+            
+            print('--- Locations ---')   
+            for loc in self.locations:
+                print(obs[INDEX:INDEX+8])
+                print(loc)
+                INDEX += 8
+                
+            print('')
+            
+        except:
+            
+            print('Not Initialized')
+            print('Call reset()')
+
         
     # Reset the state of the game world
     def reset(self):
@@ -222,10 +266,16 @@ if __name__ == "__main__":
     
     # A random strategy to exercise the gym.Env
     env = SixWinters()
+    obs = env.reset()
+    env.render()
     done = False
-    r = 0
+    score = 0
     while not done:
         action = (random.randint(0,7))
+        print('Take Action', action)
         obs, r, done, info = env.step(action)
+        score = score + r
+        env.render()
     
-    print('Done playing, score', r)
+    print('')
+    print('Done playing, score', score)

@@ -36,8 +36,8 @@ class Character:
     
     def __str__(self):
         loc_string = f'{self.name} '
-        for r in self.skills:
-            loc_string += str(r) + ':' + str(r.value) + ' '
+        # for r in self.skills:
+        #     loc_string += str(r) + ':' + str(r.value) + ' '
         return loc_string
     
 if __name__ == "__main__":

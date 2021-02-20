@@ -111,6 +111,15 @@ class ResourcePool:
     def __iter__(self):
         return self.dice.__iter__()
             
+    def __str__(self):
+        res_string = f'{self.resource_type.name}({self.pool_size}): '
+        for r in self.dice:
+            res_string += str(r.value) + ' '
+        return res_string
+    
+    def __repr__(self):
+        return self.__str__()   
+    
     def total(self):
         total = 0
         for die in self.dice:
@@ -162,8 +171,7 @@ class ResourcePool:
 if __name__ == "__main__":
     
     rp = ResourcePool(Resource.MANA, random.randint(1, 6))
-    for nd in rp:
-        print(nd)
+    print(rp)
         
     skill = random.randint(1, 6)
     highest_die = rp.highest_die_under(skill)

@@ -32,7 +32,7 @@ def play_game(replay_buffer, model, num_actions, obs, env,
               episode, max_steps = 200):
     total_rewards = 0
     for step in range(max_steps):
-        epsilon = max(1 - (episode / 500), 0.01)
+        epsilon = max(1 - (episode / 900), 0.01)
         obs, reward, done, info, replay_buffer = play_step(replay_buffer, 
                                                            model, 
                                                            num_actions, env, 
@@ -85,7 +85,7 @@ def qlearn(model_name = 'sw_dqn.h5'):
     num_actions = env.action_space.n
     
     model = tf.keras.models.Sequential([
-        tf.keras.layers.Dense(64, activation = 'elu', input_shape = input_shape),
+        tf.keras.layers.Dense(68, activation = 'elu', input_shape = input_shape),
         tf.keras.layers.Dense(32, activation = 'elu'),
         tf.keras.layers.Dense(16, activation = 'elu'),
         tf.keras.layers.Dense(num_actions)
@@ -93,9 +93,9 @@ def qlearn(model_name = 'sw_dqn.h5'):
     
     optimizer = tf.keras.optimizers.Adam(lr = 1e-3)
     
-    replay_buffer = deque(maxlen = 2000)
+    replay_buffer = deque(maxlen = 2500)
     
-    num_episodes = 10000
+    num_episodes = 2000
     
     reward_history = []
         
