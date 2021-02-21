@@ -43,7 +43,7 @@ class Location:
         obs = self.rpool.encode()
         cs = len(self.characters)
         for i in range(cs):
-            obs.append(1)
+            obs += self.characters[i].encode()
         for i in range(2 - cs):
             obs.append(0)
         return obs    

@@ -24,7 +24,7 @@ The observable state is encoded for the model as a list of 68 integers.
 * 4 Locations, each of a resource type
    * Encoded as 8 integers
    * Up to 2 characters may be at a location, represented by 1
-   * [<Resource.ENUM>,  die.value, die.value, die.value, die.value, die.value, <Character Present>, <Character Present>] X 4
+   * [<Resource.ENUM>,  die.value, die.value, die.value, die.value, die.value, <Character.ID>, <Character.ID>] X 4
 
 ## Enumerations
 
@@ -66,5 +66,9 @@ Each achievement has a resource type and value, and is fulfilled when there are 
 
 The action_space is one integer from 0-8.
 
-* 0-3: Move the first character to one of the 4 locations
-* 4-7: Move the second character to one of the 4 locations
+* 0-3: Move the first character (Keel - ID 1) to one of the 4 locations
+* 4-7: Move the second character (Thea - ID 2) to one of the 4 locations
+
+# Notes
+
+This is kind of a wonky version of the game. Can only move one character at a time, and resources are brought from pools to locations automatically and without luck. Normally doing that is an action, and there is chance involved.

@@ -18,10 +18,10 @@ from resource import Resource, ResourcePool
 from achievement import AchievementType, SumResourceAchievement
 
 # A simple upper bound on the length of the game
-MAX_TIMERS = 10
+MAX_TIMERS = 15
 
 # The number of dice in each resource pool at the start of each turn
-RESOURCE_POOL_SIZE = 3
+RESOURCE_POOL_SIZE = 5
 
 # The max number of resource dice which may be placed on each location
 LOCATION_POOL_SIZE = 3
@@ -202,10 +202,14 @@ class SixWinters(gym.Env):
             print('')
 
             print('--- Achievements ---')
-            for ach in self.current_achievements:
+            for i in range(len(self.current_achievements)):
+                print(self.current_achievements[i])
                 print(obs[INDEX:INDEX+3])
-                print(ach)
                 INDEX += 3
+            for i in range(2 - len(self.current_achievements)):
+                print('None')
+                print(obs[INDEX:INDEX+3])
+                INDEX+=3
             print('')
             
             print('--- Locations ---')   
@@ -231,7 +235,7 @@ class SixWinters(gym.Env):
                           Location('Flavortown', Resource.FOOD, LOCATION_POOL_SIZE),
                           Location('Manasberg', Resource.MANA, LOCATION_POOL_SIZE)]
         
-        self.characters = [Character('Keel'), Character('Thea')]
+        self.characters = [Character('Keel', 1), Character('Thea', 2)]
         
         # Make a deck of achievements
         self.achievement_deck = Deck([])

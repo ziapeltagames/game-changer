@@ -19,10 +19,11 @@ class Skill(Enum):
     
 class Character:
     
-    def __init__(self, name, command = 3, disguise = 3,
+    def __init__(self, name, cid, command = 3, disguise = 3,
                  lore = 3, rapport = 3, combat = 3, tactics = 3,
                  thievery = 3, survival = 3):
         self.name = name
+        self.cid = cid
         self.skills = {}
         self.skills[Skill.COMMAND] = command
         self.skills[Skill.DISGUISE] = disguise
@@ -35,12 +36,15 @@ class Character:
         self.location = None
     
     def __str__(self):
-        loc_string = f'{self.name} '
+        loc_string = f'{self.name}({self.cid}) '
         # for r in self.skills:
         #     loc_string += str(r) + ':' + str(r.value) + ' '
         return loc_string
     
+    def encode(self):
+        return [self.cid]
+    
 if __name__ == "__main__":
     
-    ch = Character('Oniri')
+    ch = Character('Oniri', 3)
     print(ch)

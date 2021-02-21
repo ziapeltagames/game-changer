@@ -32,7 +32,7 @@ def play_game(replay_buffer, model, num_actions, obs, env,
               episode, max_steps = 200):
     total_rewards = 0
     for step in range(max_steps):
-        epsilon = max(1 - (episode / 900), 0.01)
+        epsilon = max(1 - (episode / 600), 0.01)
         obs, reward, done, info, replay_buffer = play_step(replay_buffer, 
                                                            model, 
                                                            num_actions, env, 
@@ -93,9 +93,9 @@ def qlearn(model_name = 'sw_dqn.h5'):
     
     optimizer = tf.keras.optimizers.Adam(lr = 1e-3)
     
-    replay_buffer = deque(maxlen = 2500)
+    replay_buffer = deque(maxlen = 3000)
     
-    num_episodes = 2000
+    num_episodes = 1000
     
     reward_history = []
         
@@ -114,10 +114,13 @@ def qlearn(model_name = 'sw_dqn.h5'):
             
         reward_history.append(total_rewards)
     
-    window_size = 20
+    window_size = 100
     window = np.ones(window_size) / float(window_size)
     xc = np.convolve(reward_history, window)
-    plt.plot(xc[window_size:-window_size])
+    plt.plot(xc[0:-window_size])
+    plt.title('SW V01 Training')
+    plt.xlabel('Number of Games')
+    plt.ylabel('Average Score')
 
 if __name__ ==  "__main__":
     qlearn()
