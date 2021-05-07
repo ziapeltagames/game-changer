@@ -18,7 +18,7 @@ from resource import Resource, ResourcePool
 from achievement import AchievementType, SumResourceAchievement
 
 # A simple upper bound on the length of the game
-MAX_TIMERS = 15
+MAX_TIMERS = 10
 
 # The number of dice in each resource pool at the start of each turn
 RESOURCE_POOL_SIZE = 5
