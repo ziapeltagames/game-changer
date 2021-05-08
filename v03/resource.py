@@ -159,11 +159,11 @@ class ResourcePool:
     def encode(self):
         obs = [self.resource_type.value]
         
-        # for nd in self.dice:
-        #     obs.append(nd.value)
+        for nd in self.dice:
+            obs.append(nd.value)
                     
-        # for i in range(self.pool_size - len(self.dice)):
-        #     obs.append(0)
+        for i in range(5 - len(self.dice)):
+            obs.append(0)
         
         return obs        
 

@@ -1,30 +1,21 @@
 # Observable State
 
-* 5 resource pools containing 3 six sided dice each
-   * Each pool has a different types of resource: mana, timber, ore, luxury, and food
-* 4 locations
-   * Each location has a resource type
-   * Each location can hold up to 3 dice of the listed type
-* 2 achievements
-   * Each achievement has a resource type and a number from 1-12
-* 2 characters
+The observation_space is encoded for the model as a list of 61 integers.
 
-## observation_space
-
-The observable state is encoded for the model as a list of 68 integers.
-
-* 5 resource pools, each of a different type, with up to 5 dice
+* 5 Resource Pools
    * Encoded as 6 integers
+   * May hold up to 5 resource dice   
    * Empty dice slots are encoded with 0
+   * The first value is the resource pool type
    * [<Resource.ENUM>, die.value, die.value, die.value, die.value, die.value] X 5
-* 2 achievements
+* 1 Achievement
    * Encoded as 3 integers
-   * All achievements are for getting a total number of resources
-   * [<AchievementType.ENUM>, <Resource.ENUM>, sum] X 2
+   * All achievements are for getting a total number of resource dice onto a location
+   * [<AchievementType.ENUM>, <Resource.ENUM>, sum] X 1
 * 4 Locations, each of a resource type
-   * Encoded as 8 integers
-   * Up to 2 characters may be at a location, represented by 1
-   * [<Resource.ENUM>,  die.value, die.value, die.value, die.value, die.value, <Character.ID>, <Character.ID>] X 4
+   * Encoded as 7 integers
+   * A character may be at a location, represented by 0 or 1
+   * [<Resource.ENUM>, die.value, die.value, die.value, die.value, die.value, <Character.ID>] X 4
 
 ## Enumerations
 
@@ -49,7 +40,7 @@ class AchievementType(Enum):
 
 The goal is to collect four achievement cards before the time runs out. Time is fixed, and runs out after **10 turns**. Two achievements are visible at any given time.
 
-This is done by moving the characters to different locations. After moving, a character automatically moves a die from the related resource pool to the location.
+This is done by moving the character to different locations. After moving, a character automatically moves a die from the related resource pool to the location.
 
 Each achievement has a resource type and value, and is fulfilled when there are resource dice of the same type on locations that sum to this value.
 
@@ -64,11 +55,10 @@ Each achievement has a resource type and value, and is fulfilled when there are 
 
 ## action_space
 
-The action_space is one integer from 0-8.
+The action_space is one integer from 0-4.
 
-* 0-3: Move the first character (Keel - ID 1) to one of the 4 locations
-* 4-7: Move the second character (Thea - ID 2) to one of the 4 locations
+* 0-3: Move the character (Keel - ID 1) to one of the 4 locations
 
-# Notes
+# Scaling Back Options
 
-This is kind of a wonky version of the game. Can only move one character at a time, and resources are brought from pools to locations automatically and without luck. Normally doing that is an action, and there is chance involved.
+- Remove resource pool representation (30)

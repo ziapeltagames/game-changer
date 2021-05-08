@@ -24,13 +24,7 @@ MAX_TIMERS = 10
 RESOURCE_POOL_SIZE = 5
 
 # The max number of resource dice which may be placed on each location
-LOCATION_POOL_SIZE = 5
-
-# The number of different characters in the game
-NUM_CHARACTERS = 1
-
-# Total number of achievements visible
-NUM_ACHIEVEMENTS = 1
+LOCATION_POOL_SIZE = 3
     
 # Randomly shuffles a character from one location to another
 def randomly_move_characters(character, locations):
@@ -86,18 +80,18 @@ class SixWinters(gym.Env):
     # and what the AI can do
     def __init__(self):
         
-        # Move a character to a particular location
-        self.action_space = spaces.Discrete(4)
+        # Each character may move to a different location
+        # The first four options move character A, and the second
+        # four move character B
+        self.action_space = spaces.Discrete(8)
         
         # The board state is represented as a list of discrete values
         obs = []
-        for i in range(5):
-            # Values range from 0-9
-            obs.append(9)
+        for i in range(68):
+            obs.append(6)
             
         self.observation_space = spaces.MultiDiscrete(obs)        
         self.seed()
-        self.reset()
         
     # Bookkeeping to move a character from one location to another
     def _move_character(self, character, location):
@@ -114,13 +108,15 @@ class SixWinters(gym.Env):
         
         obs = []
         
-        # for rp in self.resource_pools:
-        #     obs += rp.encode()        
+        for rp in self.resource_pools:
+            obs += rp.encode()        
             
-        if len(self.current_achievements) == 1:
-            obs += self.current_achievements[0].encode()
-        else:
-            obs += [0]
+        for achievement in self.current_achievements:
+            obs += achievement.encode()
+        
+        # 0 pad out missing achievements
+        for i in range((2 - len(self.current_achievements)) * 3):
+            obs += [0]            
         
         for loc in self.locations:
             obs += loc.encode()
@@ -135,7 +131,7 @@ class SixWinters(gym.Env):
     # action the AI takes.
     def step(self, action):
         
-        self.score = 0   
+        self.score = 0        
         
         # Make sure this is a valid action
         assert self.action_space.contains(action)
@@ -186,7 +182,7 @@ class SixWinters(gym.Env):
     # the obs string. This is a sanity check that the ML Agent can see
     # the game state it needs to. It's also effectively a confirmation
     # that the encoding is correct.
-    def render(self, mode='human'):
+    def render(self):
         
         obs = self._get_obs()
         
@@ -198,37 +194,32 @@ class SixWinters(gym.Env):
             print('TIMERS: ', self.timers)
             print('')
             
-            # print('--- Pools ---')
-            # for pool in self.resource_pools:
-            #     print(obs[INDEX:INDEX+6])
-            #     print(pool)
-            #     INDEX += 6
-            # print('')
-
-            ACHIEVEMENT_SIZE = 1
-            
-            print('--- Achievements ---')
-            if len(self.current_achievements) == 1:
-                print(self.current_achievements[0])
-                print(obs[INDEX:INDEX+ACHIEVEMENT_SIZE])
-                INDEX += ACHIEVEMENT_SIZE
-            else:
-                print('None')
-                print(obs[INDEX:INDEX+ACHIEVEMENT_SIZE])
-                INDEX+=ACHIEVEMENT_SIZE
+            print('--- Pools ---')
+            for pool in self.resource_pools:
+                print(obs[INDEX:INDEX+6])
+                print(pool)
+                INDEX += 6
             print('')
-            
-            LOCATION_SIZE = 1
+
+            print('--- Achievements ---')
+            for i in range(len(self.current_achievements)):
+                print(self.current_achievements[i])
+                print(obs[INDEX:INDEX+3])
+                INDEX += 3
+            for i in range(2 - len(self.current_achievements)):
+                print('None')
+                print(obs[INDEX:INDEX+3])
+                INDEX+=3
+            print('')
             
             print('--- Locations ---')   
             for loc in self.locations:
-                print(obs[INDEX:INDEX+LOCATION_SIZE])
+                print(obs[INDEX:INDEX+8])
                 print(loc)
-                INDEX += LOCATION_SIZE
-            
-            if INDEX != len(obs):
-                raise Exception("Error in encoding length.")
+                INDEX += 8
                 
+            print('')
+            
         except:
             
             print('Not Initialized')
@@ -237,14 +228,14 @@ class SixWinters(gym.Env):
         
     # Reset the state of the game world
     def reset(self):
-        
+
         # Initialize characters and locations
-        self.locations = [Location('Ore Town', Resource.ORE, LOCATION_POOL_SIZE, NUM_CHARACTERS),
-                          Location('Timberville', Resource.TIMBER, LOCATION_POOL_SIZE, NUM_CHARACTERS),
-                          Location('Flavortown', Resource.FOOD, LOCATION_POOL_SIZE, NUM_CHARACTERS),
-                          Location('Manasberg', Resource.MANA, LOCATION_POOL_SIZE, NUM_CHARACTERS)]
+        self.locations = [Location('Ore Town', Resource.ORE, LOCATION_POOL_SIZE),
+                          Location('Timberville', Resource.TIMBER, LOCATION_POOL_SIZE),
+                          Location('Flavortown', Resource.FOOD, LOCATION_POOL_SIZE),
+                          Location('Manasberg', Resource.MANA, LOCATION_POOL_SIZE)]
         
-        self.characters = [Character('Keel', 1, command = 6)]
+        self.characters = [Character('Keel', 1), Character('Thea', 2)]
         
         # Make a deck of achievements
         self.achievement_deck = Deck([])
@@ -262,12 +253,13 @@ class SixWinters(gym.Env):
         # Create initial four achievements, which map to the four location types
         for next_resource in [Resource.TIMBER, Resource.MANA, Resource.ORE, Resource.FOOD]:
             
-            achievement = SumResourceAchievement('Gather', AchievementType.SUM, next_resource, 6)
+            achievement = SumResourceAchievement('Gather', AchievementType.SUM, next_resource, 7)
             self.achievement_deck.insert(achievement)
 
-        # Draw starting achievement          
+        # Draw two starting achievements           
         self.achievement_deck.shuffle()
-        self.current_achievements = [self.achievement_deck.draw()]
+        self.current_achievements = [self.achievement_deck.draw(),
+                                     self.achievement_deck.draw()]
         
         self.done = False
         self.timers = 0
@@ -283,8 +275,7 @@ if __name__ == "__main__":
     done = False
     score = 0
     while not done:
-        action = (random.randint(0,3))
-        print('')
+        action = (random.randint(0,7))
         print('Take Action', action)
         obs, r, done, info = env.step(action)
         score = score + r

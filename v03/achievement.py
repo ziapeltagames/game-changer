@@ -46,9 +46,6 @@ class SumResourceAchievement(Achievement):
     def __init__(self, name, achievement_type, resource_type, total):
         super().__init__(name, achievement_type)
         self.resource_type = resource_type
-        
-        if total > 9:
-            raise Exception('Achievements only have a single digit encoding for total')
         self.total = total
         
     def __str__(self):
@@ -80,10 +77,10 @@ class SumResourceAchievement(Achievement):
             return False
         
     def encode(self):
-        # obs = super().encode()
-        return [self.resource_type.value]
-        # obs.append(self.total)
-        # return obs
+        obs = super().encode()
+        obs.append(self.resource_type.value)
+        obs.append(self.total)
+        return obs
         
 if __name__ == "__main__":
     
