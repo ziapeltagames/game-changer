@@ -86,8 +86,12 @@ class SixWinters(gym.Env):
     # and what the AI can do
     def __init__(self):
         
+        self.seed()
+        self.reset()
+        
         # Move a character to a particular location
-        self.action_space = spaces.Discrete(4)
+        num_actions = len(self.get_action_meanings())
+        self.action_space = spaces.Discrete(num_actions)
         
         # The board state is represented as a list of discrete values
         obs = []
@@ -96,8 +100,7 @@ class SixWinters(gym.Env):
             obs.append(9)
             
         self.observation_space = spaces.MultiDiscrete(obs)        
-        self.seed()
-        self.reset()
+
         
     # Bookkeeping to move a character from one location to another
     def _move_character(self, character, location):
@@ -127,6 +130,16 @@ class SixWinters(gym.Env):
         
         return obs
         
+    # Iterates over the possible action types
+    def get_action_meanings(self):
+        
+        action_labels = []
+        
+        for location in self.locations:
+            action_labels.append('Move ' + location.name)
+            
+        return action_labels
+    
     def seed(self, seed = None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]        
