@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Aug 30 09:06:40 2020
-
-@author: phill
+Game encounter deck.
 """
 
 from deck import Deck

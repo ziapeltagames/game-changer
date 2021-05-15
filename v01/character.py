@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Aug 29 11:02:54 2020
-
-@author: phill
+Character class for Six Winters.
 """
 
 from enum import Enum

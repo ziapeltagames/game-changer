@@ -2,10 +2,6 @@
 """
 Locations have a name, resource types, and a maximum number of resource dice
 they can hold.
-
-Created on Sun Aug 30 09:07:53 2020
-
-@author: phill
 """
 
 import random

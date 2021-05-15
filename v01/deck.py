@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Aug 30 09:16:54 2020
-
-@author: phill
+Root class to handle card decks.
 """
 
 from random import shuffle

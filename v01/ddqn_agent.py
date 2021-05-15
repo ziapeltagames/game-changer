@@ -7,8 +7,6 @@ difficulty using the standard TF Agents library calls to handle that.
 
 For this simple version of Six Winters, this just uses a shallow DQN and no
 prioritized experience replay.
-
-@author: phill
 """
 
 import sixwinters
@@ -17,7 +15,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from tf_agents.agents.dqn.dqn_agent import DqnAgent
+from tf_agents.agents.dqn.dqn_agent import DdqnAgent
 from tf_agents.environments import suite_gym
 from tf_agents.environments import tf_py_environment
 from tf_agents.networks.q_network import QNetwork
@@ -108,7 +106,7 @@ eval_env = tf_py_environment.TFPyEnvironment(suite_gym.wrap_env(
     sixwinters.SixWinters(), discount = 0.95))
 
 # A very simple two layer fully connected neural network
-fc_layer_params = [32, 16, 8]
+fc_layer_params = [64, 32, 16, 8]
 
 # This creates the neural network
 q_net = QNetwork(
@@ -128,14 +126,14 @@ epsilon_fn = tf.keras.optimizers.schedules.PolynomialDecay(
     end_learning_rate = 0.01)
 
 # Does target_update_period even do anything if there isn't a target network?
-agent = DqnAgent(train_env.time_step_spec(),
-                 train_env.action_spec(),
-                 q_network=q_net,
-                 optimizer=optimizer,
-                 target_update_period=2000,
-                 td_errors_loss_fn=tf.keras.losses.Huber(reduction="none"),
-                 gamma=0.99,
-                 train_step_counter=train_step)
+agent = DdqnAgent(train_env.time_step_spec(),
+                  train_env.action_spec(),
+                  q_network=q_net,
+                  optimizer=optimizer,
+                  target_update_period=100,
+                  td_errors_loss_fn=tf.keras.losses.Huber(reduction="none"),
+                  gamma=0.99,
+                  train_step_counter=train_step)
 
 agent.initialize()
 
@@ -166,16 +164,15 @@ dataset = replay_buffer.as_dataset(
     num_steps=2).prefetch(3)
 iterator = iter(dataset)
 
-num_training_iterations = 4000
+num_training_iterations = 10000
 collect_steps_per_iteration = 1
-eval_interval = 20
+eval_interval = 50
 metrics_eval_episodes = 10
 
 rewards = []
 turns = []
 strategies = []
 actions = []
-losses = []
 
 for _ in range(num_training_iterations):
 
@@ -190,7 +187,6 @@ for _ in range(num_training_iterations):
     step = agent.train_step_counter.numpy()
     
     if step % eval_interval == 0:
-        print(step, train_loss.numpy())
         game_metrics = compute_metrics(eval_env, agent.policy,
                                         num_actions, metrics_eval_episodes)
         
@@ -198,10 +194,12 @@ for _ in range(num_training_iterations):
         turns.append(game_metrics["turns"])
         strategies.append(game_metrics["strategies"])
         actions.append(game_metrics["actions"])
-        losses.append(train_loss.numpy())
+        
+        print(step, train_loss.numpy(), 'score', game_metrics["reward"],
+              'turns', game_metrics["turns"])
 
 # Plot metrics
-fig, ax = plt.subplots(4, gridspec_kw = {'height_ratios': [2, 1, 1, 1]})
+fig, ax = plt.subplots(3, gridspec_kw = {'height_ratios': [2, 1, 1]})
 fig.tight_layout()
 
 iterations = range(eval_interval, num_training_iterations + eval_interval,
@@ -217,14 +215,11 @@ ax[0].set_yticklabels(action_labels)
 ax[0].set_xticklabels([])
 
 ax[1].plot(iterations, rewards)
-ax[1].set_ylabel('Score', rotation=0, labelpad=20)
+ax[1].set_ylabel('Score', rotation=0, labelpad=25)
 ax[1].set_ylim(bottom=0)
 
 ax[2].plot(iterations, turns)
-ax[2].set_ylabel('Number of Turns', rotation=0, labelpad=50)
+ax[2].set_ylabel('Turns', rotation=0, labelpad=20)
 ax[2].set_ylim(bottom=1)
-
-ax[3].plot(iterations, losses)
-ax[3].set_ylabel('Training Loss', rotation=0, labelpad=40)
 
 plt.xlabel('Number of Training Iterations')

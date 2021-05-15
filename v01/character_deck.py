@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Aug 30 09:08:28 2020
-
-@author: phill
+Deck of character cards for chance resolution.
 """
 
 from deck import Deck

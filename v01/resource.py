@@ -2,10 +2,6 @@
 """
 Tracks the community resource pools as sorted lists of resource dice,
 along with utilities for handling resource types and resource dice.
-
-Created on Sat Aug 29 11:02:54 2020
-
-@author: phill
 """
 
 import bisect

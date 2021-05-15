@@ -3,10 +3,6 @@
 There are a wide variety of achievements possible, related to combinations
 of resources as well as specific types and numbers of obstacles that
 are overcome.
-
-Created on Sun Aug 30 09:08:18 2020
-
-@author: phill
 """
 
 import random
