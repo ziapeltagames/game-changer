@@ -11,7 +11,6 @@ Created on Sun Aug 30 09:07:53 2020
 import random
 from resource import Resource, ResourceDie, ResourcePool
 
-# TODO: Add the ability to handle multiple resource types.
 class Location:
     
     def __init__(self, name, resource_type, pool_size, max_chars):
@@ -39,14 +38,15 @@ class Location:
     
     # Returns an encoding for a location that can be returned for Open AI Gym
     # The encoding is an integer for the resource type (0-4), along with an
-    # integer for each die on the location (1-6) up to capacity
+    # integer for each die on the location (1-6) up to capacity, followed
+    # by encodings for each character in the game,
     def encode(self):
         obs = self.rpool.encode()
-        # cs = len(self.characters)
-        # for i in range(cs):
-        #     obs += self.characters[i].encode()
-        # for i in range(self.max_chars - cs):
-        #     obs.append(0)
+        cs = len(self.characters)
+        for i in range(cs):
+            obs += self.characters[i].encode()
+        for i in range(self.max_chars - cs):
+            obs.append(0)
         return obs    
         
     def resource_total(self):

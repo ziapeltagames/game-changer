@@ -95,7 +95,8 @@ class SixWinters(gym.Env):
         
         # The board state is represented as a list of discrete values
         obs = []
-        for i in range(5):
+        num_obs = len(self._get_obs())
+        for i in range(num_obs):
             # Values range from 0-9
             obs.append(9)
             
@@ -218,7 +219,7 @@ class SixWinters(gym.Env):
             #     INDEX += 6
             # print('')
 
-            ACHIEVEMENT_SIZE = 1
+            ACHIEVEMENT_SIZE = len(self.current_achievements[0].encode())
             
             print('--- Achievements ---')
             if len(self.current_achievements) == 1:
@@ -231,7 +232,7 @@ class SixWinters(gym.Env):
                 INDEX+=ACHIEVEMENT_SIZE
             print('')
             
-            LOCATION_SIZE = 1
+            LOCATION_SIZE = len(self.locations[0].encode())
             
             print('--- Locations ---')   
             for loc in self.locations:

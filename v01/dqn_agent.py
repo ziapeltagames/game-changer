@@ -108,7 +108,7 @@ eval_env = tf_py_environment.TFPyEnvironment(suite_gym.wrap_env(
     sixwinters.SixWinters(), discount = 0.95))
 
 # A very simple two layer fully connected neural network
-fc_layer_params = [16, 8]
+fc_layer_params = [32, 16, 8]
 
 # This creates the neural network
 q_net = QNetwork(
@@ -157,7 +157,7 @@ replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
     max_length=10000)
 
 # Initial size of random moves for buffer
-initial_collect_steps = 200
+initial_collect_steps = 250
 collect_data(train_env, random_policy, replay_buffer, initial_collect_steps)
 
 dataset = replay_buffer.as_dataset(
@@ -166,9 +166,9 @@ dataset = replay_buffer.as_dataset(
     num_steps=2).prefetch(3)
 iterator = iter(dataset)
 
-num_training_iterations = 750
+num_training_iterations = 4000
 collect_steps_per_iteration = 1
-eval_interval = 10
+eval_interval = 20
 metrics_eval_episodes = 10
 
 rewards = []

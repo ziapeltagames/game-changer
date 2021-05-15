@@ -156,14 +156,15 @@ class ResourcePool:
     # Returns an encoding for the resource pool that can be returned
     # for Open AI Gym. The encoding is an integer for the resource
     # type (0-4), along with an integer for each die on the location (1-6)
+    # up to capacity
     def encode(self):
         obs = [self.resource_type.value]
         
-        # for nd in self.dice:
-        #     obs.append(nd.value)
+        for nd in self.dice:
+            obs.append(nd.value)
                     
-        # for i in range(self.pool_size - len(self.dice)):
-        #     obs.append(0)
+        for i in range(self.pool_size - len(self.dice)):
+            obs.append(0)
         
         return obs        
 
